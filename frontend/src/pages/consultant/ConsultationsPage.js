@@ -2,15 +2,17 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../../context/AuthContext";
 
 function ConsultationsPage() {
+  const { logout } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [consultations, setConsultations] = useState([]);
   const [status, setStatus] = useState("");
   const [reply, setReply] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Fetch consultations
+  // ✅ Fetch consultations with useCallback to prevent re-creation
   const fetchConsultations = useCallback(async () => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -41,18 +43,17 @@ function ConsultationsPage() {
     fetchConsultations();
   }, [fetchConsultations]);
 
-  // ✅ Handle updating consultation status & reply
-  const handleUpdate = async (consultationId) => {
+  const handleUpdate = async (consultationId, recipientType) => {
     try {
       const storedUser = localStorage.getItem("user");
       const { token } = JSON.parse(storedUser);
-
-      const data = { consultationId, status, reply };
-
+  
+      const data = { consultationId, status, reply, recipientType }; // Ensure recipientType is included
+  
       await axios.put("http://localhost:5000/consultations/update-status-reply", data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       alert("Consultation updated successfully!");
       fetchConsultations();
     } catch (error) {
@@ -60,8 +61,6 @@ function ConsultationsPage() {
       alert("Failed to update consultation. Try again!");
     }
   };
-
-  // ✅ Sidebar toggle functions
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -69,12 +68,16 @@ function ConsultationsPage() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
+  const handleLogout = () => {
+    logout(); // ✅ Clears user state
+    navigate("/login"); // ✅ Redirect to login page
+  };
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar Toggle Button */}
+    <div className="container mt-5">
+      <h2 className="text-center text-primary">Consultations</h2>
       <button className="menu-btn" onClick={toggleSidebar}>
-        ☰
+        ☰ 
       </button>
 
       {/* Sidebar Overlay (Closes sidebar when clicked) */}
@@ -82,59 +85,81 @@ function ConsultationsPage() {
 
       {/* Sidebar Navigation */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <button className="close-btn" onClick={closeSidebar}>✖</button>
         <h4 className="text-center text-light mt-3">Menu</h4>
-
-        {/* Back to Dashboard Button */}
-        <button className="btn btn-secondary w-100 mb-3" onClick={() => navigate("/consultant-dashboard")}>
+        <button className="btn btn-primary w-100" onClick={() => navigate("/consultations")}>
+          View Consultations
+        </button>
+        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/consultant-dashboard")}>
           Back to Dashboard
+        </button>
+        <button className="btn btn-danger ms-2" onClick={handleLogout}>
+          Logout
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className="container mt-5">
-        <h2 className="text-center text-primary">Consultations</h2>
+      {consultations.length > 0 ? (
+        <ul className="list-group mt-3">
+          {consultations.map((consultation) => (
+            <li key={consultation._id} className="list-group-item">
+              <strong>{consultation.topic}</strong>
+              <p>{consultation.description}</p>
+              <p><strong>Student:</strong> {consultation.student?.name || "Unknown"}</p>
+              <p><strong>Status:</strong> {consultation.status}</p>
+              <p><strong>Reply:</strong> {consultation.reply || "No reply yet"}</p>
 
-        {consultations.length > 0 ? (
-          <ul className="list-group mt-3">
-            {consultations.map((consultation) => (
-              <li key={consultation._id} className="list-group-item">
-                <strong>{consultation.topic}</strong>
-                <p>{consultation.description}</p>
-                <p><strong>Student:</strong> {consultation.student?.name || "Unknown"}</p>
-                <p><strong>Status:</strong> {consultation.status}</p>
-                <p><strong>Reply:</strong> {consultation.reply || "No reply yet"}</p>
+              {/* Dropdown for status update */}
+              <select className="form-control my-2" onChange={(e) => setStatus(e.target.value)}>
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
 
-                {/* Dropdown for status update */}
-                <select className="form-control my-2" onChange={(e) => setStatus(e.target.value)}>
-                  <option value="">Select Status</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
+              {/* Textarea for reply */}
+              <textarea
+                className="form-control my-2"
+                placeholder="Write a reply..."
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+              ></textarea>
 
-                {/* Textarea for reply */}
-                <textarea
-                  className="form-control my-2"
-                  placeholder="Write a reply..."
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                ></textarea>
+              <button 
+                className="btn btn-success" 
+                onClick={() => handleUpdate(consultation._id, consultation.recipientType)}
+              >
+                Update Status & Send Reply
+              </button>
 
-                <button className="btn btn-success" onClick={() => handleUpdate(consultation._id)}>
-                  Update Status & Send Reply
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-center text-muted mt-3">No consultation requests available.</p>
-        )}
-      </div>
-
-      {/* Sidebar & Overlay Styles */}
-      <style>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-muted mt-3">No consultation requests available.</p>
+      )}
+          <style>
         {`
+          /* Full Page Styling */
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+          }
+
+          /* Dashboard Container */
+          .dashboard-container {
+            position: relative;
+            min-height: 100vh;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease-in-out;
+          }
+
+          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
@@ -146,10 +171,17 @@ function ConsultationsPage() {
             transition: left 0.3s ease-in-out;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes Logout button to the bottom */
+            height: 100vh; /* Full height */
+            padding-bottom: 20px; /* Space at bottom */
           }
           .sidebar.open {
             left: 0;
           }
+
+          /* Sidebar Overlay */
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -163,22 +195,20 @@ function ConsultationsPage() {
           .sidebar-overlay.show {
             display: block;
           }
-          .menu-btn {
-            position: fixed;
-            top: 9px;
-            left: 15px;
-            background:rgb(34, 34, 34);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            z-index: 1100;
+
+          /* Sidebar Buttons */
+          .btn {
+            transition: all 0.3s ease-in-out;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: bold;
           }
-          .menu-btn:hover {
-            background:rgb(0, 0, 0);
+          .btn:hover {
+            filter: brightness(90%);
+            transform: scale(1.05);
           }
+
+          /* Close Button */
           .close-btn {
             background: none;
             border: none;
@@ -188,6 +218,47 @@ function ConsultationsPage() {
             position: absolute;
             top: 10px;
             right: 15px;
+          }
+          .close-btn:hover {
+            color: #ff4757;
+          }
+
+          /* Sidebar Toggle Button */
+          .menu-btn {
+            position: fixed;
+            top: 10px; 
+            left: 15px;
+            background:rgba(0, 123, 255, 0);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 1100;
+            transition: all 0.3s ease-in-out;
+          }
+          .menu-btn:hover {
+            background:rgb(0, 0, 0);
+            transform: scale(1.1);
+          }
+
+          /* Main Dashboard Content */
+          .dashboard-content {
+            padding: 50px;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+          }
+
+          /* Responsive Fix */
+          @media (max-width: 768px) {
+            .sidebar {
+              width: 100%;
+            }
+          }
+          .ms-2 {
+            margin-top: auto;
           }
         `}
       </style>

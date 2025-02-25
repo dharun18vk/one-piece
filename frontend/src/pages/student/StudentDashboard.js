@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function StudentDashboard() {
+  const { logout } = useAuth();
   const [userRole, setUserRole] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -21,6 +23,10 @@ function StudentDashboard() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
+  const handleLogout = () => {
+    logout(); // ✅ Clears user state
+    navigate("/login"); // ✅ Redirect to login page
+  };
 
   return (
     <div className="dashboard-container">
@@ -38,11 +44,14 @@ function StudentDashboard() {
         <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
           Request Consultation
         </button>
-        <button className="btn btn-secondary w-100" onClick={() => navigate("/student-consultations")}>
+        <button className="btn btn-primary w-100" onClick={() => navigate("/student-consultations")}>
           View My Consultations
         </button>
-        <button className="btn btn-secondary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
+        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
           Request Teacher Consultation
+        </button>
+        <button className="btn btn-danger ms-2" onClick={handleLogout}>
+          Logout
         </button>
       </div>
 

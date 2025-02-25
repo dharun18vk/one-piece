@@ -12,7 +12,7 @@ import {
   updateStatusReply
 } from "../controllers/consultationController.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
-
+import Consultation from "../models/Consultation.js";
 
 
 const router = express.Router();
@@ -48,6 +48,6 @@ router.put('/update-status-reply', authMiddleware, updateStatusReply);
 router.get("/consultations/all", authorizeRoles("Consultant"), getAllConsultations);
 router.post("/consultations/create", authorizeRoles("Student"), createConsultation);
 
-
+router.put("/update-status-reply", authMiddleware, updateStatusReply);
 
 export default router;

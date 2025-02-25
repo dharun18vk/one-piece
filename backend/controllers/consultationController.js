@@ -52,21 +52,27 @@ export const getStudentConsultations = async (req, res) => {
   }
 };
 
-// ✅ Get All Consultations (For Consultants)
 export const getAllConsultations = async (req, res) => {
   try {
-    if (req.user.role !== "Consultant")
+    if (req.user.role !== "Consultant") {
       return res.status(403).json({ message: "Access denied" });
+    }
 
-    const consultations = await Consultation.find()
+    // Ensure recipientType exists in the database and is correctly formatted
+    const consultations = await Consultation.find({ recipientType: "Consultant" })
       .populate("student", "name email")
       .populate("consultant", "name")
       .exec();
+
     res.json(consultations);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error fetching consultations:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
+
+
 
 // ✅ Update Consultation Status (For Consultants)
 export const updateConsultationStatus = async (req, res) => {
@@ -262,26 +268,6 @@ export const getTeacherConsultations = async (req, res) => {
     res.json(consultations);
   } catch (error) {
     console.error("Error fetching teacher consultations:", error);
-    res.status(500).json({ message: "Server error", error });
-  }
-};
-
-
-export const getConsultationById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const consultation = await Consultation.findById(id)
-      .populate("student", "name email")
-      .populate("consultant", "name email")
-      .exec();
-
-    if (!consultation) {
-      return res.status(404).json({ message: "Consultation not found" });
-    }
-
-    res.json(consultation);
-  } catch (error) {
-    console.error("Error fetching consultation:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };

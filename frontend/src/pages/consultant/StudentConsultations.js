@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../../context/AuthContext";
 
 function StudentConsultations() {
+  const { logout } = useAuth();
   const [consultations, setConsultations] = useState([]);
   const [selectedConsultation, setSelectedConsultation] = useState(null);
   const [newConsultation, setNewConsultation] = useState({ topic: "", description: "" });
@@ -114,11 +116,16 @@ function StudentConsultations() {
     setIsSidebarOpen(false);
   };
 
+  const handleLogout = () => {
+    logout(); // ✅ Clears user state
+    navigate("/login"); // ✅ Redirect to login page
+  };
+
   return (
     <div className="dashboard-container">
       {/* Sidebar Toggle Button */}
       <button className="menu-btn" onClick={toggleSidebar}>
-        ☰ Open Menu
+        ☰ 
       </button>
 
       {/* Sidebar Overlay (Closes sidebar when clicked) */}
@@ -126,17 +133,18 @@ function StudentConsultations() {
 
       {/* Sidebar Navigation */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <button className="close-btn" onClick={closeSidebar}>✖</button>
         <h4 className="text-center text-light mt-3">Menu</h4>
-
-        {/* Back to Dashboard Button */}
-        <button className="btn btn-secondary w-100 mb-3" onClick={() => navigate("/student-dashboard")}>
-          Back to Dashboard
+        <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
+          Request Consultation
         </button>
-
-        {/* Create Consultation Button */}
-        <button className="btn btn-primary w-100 mb-3" onClick={() => setIsEditing(false) || setSelectedConsultation({ topic: "", description: "" })}>
-          Create Consultation
+        <button className="btn btn-primary w-100" onClick={() => navigate("/student-consultations")}>
+          View My Consultations
+        </button>
+        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
+          Request Teacher Consultation
+        </button>
+        <button className="btn btn-danger ms-2" onClick={handleLogout}>
+          Logout
         </button>
       </div>
 
@@ -201,9 +209,9 @@ function StudentConsultations() {
           }
           .menu-btn {
             position: fixed;
-            top: 15px;
+            top: 9px;
             left: 15px;
-            background: #007bff;
+            background:rgb(37, 37, 37);
             color: white;
             border: none;
             padding: 10px 15px;
@@ -213,7 +221,7 @@ function StudentConsultations() {
             z-index: 1100;
           }
           .menu-btn:hover {
-            background: #0056b3;
+            background:rgb(0, 0, 0);
           }
           .close-btn {
             background: none;
