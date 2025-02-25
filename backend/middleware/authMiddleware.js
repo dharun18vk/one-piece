@@ -17,6 +17,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     req.user = user;
+    console.log("Authenticated User:", req.user); // ✅ Debug log
     next();
   } catch (error) {
     console.error("Auth error:", error);
@@ -25,3 +26,13 @@ const authMiddleware = async (req, res, next) => {
 };
 
 export default authMiddleware;
+
+// middleware/authMiddleware.js
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+  };
+};

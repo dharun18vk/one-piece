@@ -87,6 +87,7 @@ const Signup = () => {
                         >
                             <option value="Student">Student</option>
                             <option value="Consultant">Consultant</option>
+                            <option value="Teacher">Teacher</option>
                         </select>
                     </div>
                     <button type="submit" className="btn btn-primary w-100" disabled={loading}>

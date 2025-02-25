@@ -12,28 +12,37 @@ const Login = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setLoading(true); // Start loading
+        setLoading(true);
 
         try {
             const response = await axios.post("http://localhost:5000/auth/login", { email, password });
 
+            if (response.data?.token) {
+                login(response.data); // ✅ Store token in AuthContext
+                localStorage.setItem("token", response.data.token); // ✅ Store JWT securely (if required)
 
-            if (response.data.success) {
-                alert("Login successful!");
-                login(response.data);
-                navigate(response.data.role === "Student" ? "/student-dashboard" : "/consultant-dashboard");
+                // ✅ Role-based redirection
+                const { role } = response.data;
+                if (role === "Student") {
+                    navigate("/student-dashboard");
+                } else if (role === "Consultant") {
+                    navigate("/consultant-dashboard");
+                } else if (role === "Teacher") {
+                    navigate("/teacher-dashboard");
+                } else {
+                    alert("Invalid role. Contact support.");
+                }
             } else {
-                alert(response.data.message);
+                alert("Login failed. Please try again.");
             }
         } catch (error) {
             console.error("Login Error:", error);
-            alert("Invalid email or password. Please try again.");
+            alert(error.response?.data?.message || "Invalid email or password. Please try again.");
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
-};
+    };
 
-    
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 bg-gradient">
             <div className="bg-white p-4 rounded shadow-lg" style={{ width: "400px" }}>

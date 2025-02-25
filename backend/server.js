@@ -16,6 +16,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
+});
+
+
 const PORT = process.env.PORT || 5000;
 
 // ✅ Ensure correct database connection
