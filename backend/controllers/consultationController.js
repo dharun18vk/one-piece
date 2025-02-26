@@ -282,6 +282,25 @@ export const getTeacherConsultations = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+export const getStudentStats = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "Unauthorized: User not found" });
+    }
+
+    const studentId = req.user.id;
+
+    const totalConsultations = await Consultation.countDocuments({ student: studentId });
+    const pendingRequests = await Consultation.countDocuments({ student: studentId, status: "Pending" });
+    const approvedConsultations = await Consultation.countDocuments({ student: studentId, status: "Approved" });
+
+    res.json({ totalConsultations, pendingRequests, approvedConsultations });
+  } catch (error) {
+    console.error("Error fetching student stats:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 
 

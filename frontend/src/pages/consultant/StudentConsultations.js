@@ -24,11 +24,9 @@ function StudentConsultations() {
         return;
       }
       const { token } = JSON.parse(storedUser);
-
       const res = await axios.get("http://localhost:5000/consultations/student", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setConsultations(res.data);
     } catch (error) {
       console.error("Failed to fetch consultations:", error);
@@ -38,7 +36,7 @@ function StudentConsultations() {
 
   useEffect(() => {
     fetchConsultations();
-  }, []);
+  }, [fetchConsultations]);
 
   // ✅ Toggle consultation details
   const toggleConsultationDetails = (consultationId) => {
@@ -71,18 +69,16 @@ function StudentConsultations() {
         alert("User not authenticated!");
         return;
       }
-      
       const { token } = JSON.parse(storedUser);
-  
       const updatedConsultation = {
         topic: newConsultation.topic,
         description: newConsultation.description,
-        status: selectedConsultation.status,  
+        status: selectedConsultation.status,
         recipientType: selectedConsultation.recipientType,
         consultant: selectedConsultation.consultant,
         reply: selectedConsultation.reply || "",
       };
-  
+
       if (isEditing) {
         await axios.put(
           `http://localhost:5000/consultations/update/${selectedConsultation._id}`,
@@ -98,7 +94,6 @@ function StudentConsultations() {
         );
         alert("Consultation created successfully!");
       }
-  
       fetchConsultations();
       closeModal();
     } catch (error) {
@@ -110,16 +105,14 @@ function StudentConsultations() {
   // ✅ Delete consultation
   const handleDelete = async (consultationId) => {
     if (!window.confirm("Are you sure you want to delete this consultation?")) return;
-
     try {
       const storedUser = localStorage.getItem("user");
       const { token } = JSON.parse(storedUser);
-
       await axios.delete(`http://localhost:5000/consultations/delete/${consultationId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       alert("Consultation deleted successfully!");
+      fetchConsultations();
     } catch (error) {
       console.error("Error deleting consultation:", error);
       alert("Failed to delete consultation. Try again!");
@@ -133,164 +126,271 @@ function StudentConsultations() {
 
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h4 className="text-center text-light mt-3">Menu</h4>
-        <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
+        <h4 className="sidebar-title">Menu</h4>
+        <button className="sidebar-btn" onClick={() => navigate("/request-consultation")}>
           Request Consultation
         </button>
-        <button className="btn btn-primary w-100" onClick={() => navigate("/student-consultations")}>
+        <button className="sidebar-btn" onClick={() => navigate("/student-consultations")}>
           View My Consultations
         </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
+        <button className="sidebar-btn" onClick={() => navigate("/request-teacher-consultation")}>
           Request Teacher Consultation
         </button>
-        <div className="logout-container">
-          <button className="btn btn-danger w-100" onClick={logout}>
-            Logout
-          </button>
-        </div>
+        <button className="sidebar-btn" onClick={() => navigate("/student-dashboard")}>
+          Back to Dashboard
+        </button>
+        <button className="sidebar-btn logout-btn" onClick={logout}>
+          Logout
+        </button>
       </div>
 
       {/* Main Content */}
-      <div className="container mt-5">
-        <h2 className="text-center text-info">Your Consultations</h2>
-        
+      <div className="main-content container mt-5">
+        <h2 className="main-title">Your Consultations</h2>
         {consultations.length > 0 ? (
           <ul className="list-group mt-3">
             {consultations.map((consultation) => (
-              <li key={consultation._id} className="list-group-item">
-                {/* ✅ Click to toggle details */}
-                <div className="d-flex justify-content-between align-items-center cursor-pointer" 
-                     onClick={() => toggleConsultationDetails(consultation._id)}
-                     style={{ cursor: "pointer" }}>
+              <li key={consultation._id} className="list-group-item consultation-card">
+                <div
+                  className="consultation-header"
+                  onClick={() => toggleConsultationDetails(consultation._id)}
+                >
                   <strong>{consultation.topic}</strong>
-                  <span className="text-muted">
+                  <span className="toggle-icon">
                     {expandedConsultation === consultation._id ? "▲" : "▼"}
                   </span>
                 </div>
-
-                {/* ✅ Show details only when expanded */}
                 {expandedConsultation === consultation._id && (
-                  <div className="mt-2 p-3 border rounded bg-light">
+                  <div className="consultation-details">
                     <p><strong>Description:</strong> {consultation.description}</p>
                     <p><strong>Status:</strong> {consultation.status}</p>
-                    <p><strong>Consultant's Reply:</strong> {consultation.reply || "No reply yet"}</p>
-
-                    {/* Edit and Delete Buttons */}
-                    <button className="btn btn-warning btn-sm mx-2" onClick={() => openModal(consultation)}>
-                      Edit
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(consultation._id)}>
-                      Delete
-                    </button>
+                    <p>
+                      <strong>Consultant's Reply:</strong> {consultation.reply || "No reply yet"}
+                    </p>
+                    <div className="action-buttons">
+                      <button className="btn btn-warning btn-sm" onClick={() => openModal(consultation)}>
+                        Edit
+                      </button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(consultation._id)}>
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 )}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-center text-muted mt-3">No consultation requests found.</p>
+          <p className="no-consultations">No consultation requests found.</p>
         )}
       </div>
 
-      {/* ✅ Modal for Editing Consultation */}
+      {/* Modal for Editing Consultation */}
       {isEditing && selectedConsultation && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Edit Consultation</h3>
-            <label>Topic:</label>
-            <input type="text" name="topic" value={newConsultation.topic} onChange={handleInputChange} className="form-control" />
-
-            <label>Description:</label>
-            <textarea name="description" value={newConsultation.description} onChange={handleInputChange} className="form-control" />
-
-            <button className="btn btn-success mt-2" onClick={handleSave}>Save</button>
-            <button className="btn btn-secondary mt-2" onClick={closeModal}>Cancel</button>
+            <div className="mb-2">
+              <label className="form-label"><strong>Topic:</strong></label>
+              <input
+                type="text"
+                name="topic"
+                value={newConsultation.topic}
+                onChange={handleInputChange}
+                className="form-control"
+                placeholder="Enter topic"
+              />
+            </div>
+            <div className="mb-2">
+              <label className="form-label"><strong>Description:</strong></label>
+              <textarea
+                name="description"
+                value={newConsultation.description}
+                onChange={handleInputChange}
+                className="form-control"
+                placeholder="Enter description"
+                rows="3"
+              ></textarea>
+            </div>
+            <button className="btn btn-success w-100" onClick={handleSave}>
+              Save
+            </button>
+            <button className="btn btn-secondary w-100 mt-2" onClick={closeModal}>
+              Cancel
+            </button>
           </div>
         </div>
       )}
 
-      {/* Sidebar & Overlay Styles */}
+      {/* Enhanced Styles */}
       <style>
         {`
+          /* Overall Dashboard Container */
+          .dashboard-container {
+            background: #0d1117;
+            color:black;
+            position:flex;
+            font-family: 'Poppins', sans-serif;
+          }
+          body {
+            background: #0d1117;
+            color: white;
+            overflow-x: hidden;
+          }
+          
+          /* Sidebar Styles */
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: #343a40;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             padding: 20px;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease;
             z-index: 1000;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
-            display: flex;          /* ✅ Enables flexbox */
-            flex-direction: column; /* ✅ Aligns items vertically */
-            justify-content: space-between; 
-            }
-          .logout-container {
-            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
           .sidebar.open {
             left: 0;
           }
-          .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
+          .sidebar-title {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
           }
-          .sidebar-overlay.show {
-            display: block;
+          .sidebar-btn {
+            background: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
           }
+          .sidebar-btn:hover {
+            background: #007bff;
+            color: white;
+            transform: scale(1.05);
+          }
+          .logout-btn {
+            border-color: #dc3545;
+            color: #dc3545;
+          }
+          .logout-btn:hover {
+            background: #dc3545;
+            color: white;
+          }
+
+          /* Main Content Styles */
+          .main-content {
+            margin-left: 0;
+            padding: 50px 20px;
+          }
+          .main-title {
+            text-align: center;
+            color: #00aaff;
+            font-size: 32px;
+            margin-bottom: 30px;
+          }
+          .consultation-list {
+            margin-top: 20px;
+          }
+          .consultation-card {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+          }
+          .consultation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+          }
+          .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color:white;
+          }
+          .toggle-icon {
+            font-size: 18px;
+          }
+          .consultation-details {
+            margin-top: 10px;
+            background:rgba(255, 255, 255, 0.89);
+            color: #333;
+            padding: 10px;
+            border-radius: 8px;
+          }
+          .action-buttons {
+            margin-top: 10px;
+          }
+          .action-buttons .btn {
+            margin-right: 10px;
+          }
+          .no-consultations {
+            text-align: center;
+            color: #aaa;
+            margin-top: 20px;
+            font-size: 18px;
+          }
+
+          /* Modal Styles */
           .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 999;
+            z-index: 2000;
           }
-
           .modal-content {
             background: white;
+            color: #333;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             width: 400px;
-            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
           }
+
+          /* Menu Button */
           .menu-btn {
             position: fixed;
-            top: 9px;
+            top: 10px;
             left: 15px;
-            background:rgb(37, 37, 37);
+            background: transparent;
             color: white;
             border: none;
             padding: 10px 15px;
-            font-size: 18px;
+            font-size: 22px;
             cursor: pointer;
             border-radius: 5px;
             z-index: 1100;
+            transition: background 0.3s ease, transform 0.3s ease;
           }
           .menu-btn:hover {
-            background:rgb(0, 0, 0);
+            background: rgba(0,0,0,0.3);
+            transform: scale(1.1);
           }
-          .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 15px;
+
+          /* Responsive Sidebar */
+          @media (max-width: 768px) {
+            .sidebar {
+              width: 100%;
+            }
           }
         `}
       </style>

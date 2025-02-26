@@ -93,20 +93,22 @@ function TeacherConsultations() {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center text-primary">Teacher Consultations</h2>
+    <div className="dashboard-container">
+      {/* Sidebar Toggle Button */}
       <button className="menu-btn" onClick={toggleSidebar}>☰</button>
 
-      {/* Sidebar Overlay */}
-      {isSidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
-
-      {/* Sidebar Navigation */}
+      {/* Sidebar & Overlay */}
+      {isSidebarOpen && <div className="sidebar-overlay show" onClick={closeSidebar}></div>}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h4 className="text-center text-light mt-3">Menu</h4>
-        <button className="btn btn-primary w-100" onClick={() => navigate("/teacher-consultations")}>
-          View Teacher Consultations
+        <div className="sidebar-header">
+          <br></br>
+          <br></br>
+          <h3 className="text-light">Teacher Panel</h3>
+        </div>
+        <button className="btn btn-light-blue w-100" onClick={() => navigate("/teacher-consultations")}>
+          View Consultations
         </button>
-        <button className="btn btn-primary w-100 mb-4" onClick={() => navigate("/teacher-dashboard")}>
+        <button className="btn btn-light-blue w-100 mt-2" onClick={() => navigate("/teacher-dashboard")}>
           Back to Dashboard
         </button>
         <div className="logout-container">
@@ -178,47 +180,39 @@ function TeacherConsultations() {
       {/* Sidebar & Overlay Styles */}
       <style>
         {`
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+          }
+          body {
+            background: #0d1117;
+            color: white;
+            overflow-x: hidden;
+          }
           .dashboard-container {
             position: relative;
           }
 
-          /* Sidebar Toggle Button */
-          .menu-btn {
-            position: fixed;
-            top: 10px; 
-            left: 15px;
-            background:rgba(0, 123, 255, 0);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
-          }
-          .menu-btn:hover {
-            background:rgb(0, 0, 0);
-          }
-
+          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100%;
-            background: #343a40;
+            left: -260px;
+            width: 260px;
+            height: 100vh;
+            background: #121212;
             padding: 20px;
-            transition: left 0.3s ease;
+            transition: left 0.3s ease-in-out;
             z-index: 1000;
-            display: flex;          /* ✅ Enables flexbox */
-            flex-direction: column; /* ✅ Aligns items vertically */
-            justify-content: space-between; 
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
           }
           .sidebar.open {
             left: 0;
           }
 
+          /* Sidebar Overlay */
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -227,6 +221,56 @@ function TeacherConsultations() {
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
+            display: none;
+          }
+          .dashboard-card{
+          
+          }
+          .sidebar-overlay.show {
+            display: block;
+          }
+
+          /* Sidebar Buttons */
+          .btn {
+            transition: all 0.3s ease-in-out;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+          }
+          .btn-primary {
+            background:rgb(0, 170, 255);
+            border: none;
+          }
+          .btn-warning {
+            background: #ffcc00;
+            border: none;
+          }
+          .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+          }
+
+          /* Sidebar Toggle Button */
+          .menu-btn {
+            position: fixed;
+            top: 10px;
+            left:2px;
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 8px;
+            z-index: 1100;
+            transition: all 0.3s ease-in-out;
+          }
+          .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+            radius:50%;
           }
 
           .close-btn {

@@ -6,8 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 function RequestConsultation() {
   const { logout } = useAuth();
   const [topic, setTopic] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [description, setDescription] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleCreate = async () => {
@@ -33,6 +33,7 @@ function RequestConsultation() {
       alert(error.response?.data?.error || "Error creating consultation. Try again!");
     }
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -42,84 +43,78 @@ function RequestConsultation() {
   };
 
   const handleLogout = () => {
-    logout(); // ✅ Clears user state
-    navigate("/login"); // ✅ Redirect to login page
+    logout();
+    navigate("/login");
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center text-primary">Request a Consultation</h2>
-            <button className="menu-btn" onClick={toggleSidebar}>
-        ☰ 
-      </button>
+    <div className="main-container">
+      <button className="menu-btn" onClick={toggleSidebar}>☰</button>
 
-      {/* Sidebar Overlay (Closes sidebar when clicked) */}
+      {/* Sidebar Overlay */}
       <div className={`sidebar-overlay ${isSidebarOpen ? "show" : ""}`} onClick={closeSidebar}></div>
 
       {/* Sidebar Navigation */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h4 className="text-center text-light mt-3">Menu</h4>
-        <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
-          Request Consultation
-        </button>
-        <button className="btn btn-primary w-100" onClick={() => navigate("/student-consultations")}>
-          View My Consultations
-        </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
-          Request Teacher Consultation
-        </button>
-        <button className="btn btn-danger ms-2" onClick={handleLogout}>
-          Logout
-        </button>
+        <h4 className="text-center text-light mt-3">Student Menu</h4>
+        <button className="btn btn-light w-100 mb-2" onClick={() => navigate("/request-consultation")}>Request Consultation</button>
+        <button className="btn btn-light w-100" onClick={() => navigate("/student-consultations")}>View My Consultations</button>
+        <button className="btn btn-light w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>Request Teacher Consultation</button>
+        <button className="btn btn-light w-100 mt-2" onClick={() => navigate("/student-dashboard")}>Back to Dashboard</button>
+        <button className="btn btn-danger w-100 mt-2" onClick={handleLogout}>Logout</button>
       </div>
-      <div className="card p-4 shadow-lg">
-        <div className="mb-3">
-          <label className="form-label">
-            <strong>Topic</strong>
-          </label>
-          <input
-            className="form-control"
-            placeholder="Enter topic"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-          />
-        </div>
 
-        <div className="mb-3">
-          <label className="form-label">
-            <strong>Description</strong>
-          </label>
-          <textarea
-            className="form-control"
-            placeholder="Enter description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="4"
-          ></textarea>
-        </div>
+      {/* Main Content */}
+      <div className="content-container">
+        <h2 className="text-primary text-center">Request a Consultation</h2>
+        <div className="card p-4 shadow-lg form-container">
+          <div className="mb-3">
+            <label className="form-label"><strong>Topic</strong></label>
+            <input className="form-control" placeholder="Enter topic" value={topic} onChange={(e) => setTopic(e.target.value)} />
+          </div>
 
-        <div className="logout-container">
-          <button className="btn btn-success w-100" onClick={handleCreate}>
-            Submit Request
-          </button>
+          <div className="mb-3">
+            <label className="form-label"><strong>Description</strong></label>
+            <textarea className="form-control" placeholder="Enter description" value={description} onChange={(e) => setDescription(e.target.value)} rows="4"></textarea>
+          </div>
+
+          <button className="btn btn-success w-100" onClick={handleCreate}>Submit Request</button>
         </div>
       </div>
+
+      {/* Styles */}
       <style>
         {`
+          /* Main Layout */
+          .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background:rgb(0, 0, 0);
+          }
+          body {
+            background:rgb(0, 0, 0);
+            color: white;
+            overflow-x: hidden;
+          }
+
+          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: #343a40;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             padding: 20px;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease;
             z-index: 1000;
-            display: flex;          /* ✅ Enables flexbox */
-            flex-direction: column; /* ✅ Aligns items vertically */
-            justify-content: space-between; 
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
           .sidebar.open {
             left: 0;
@@ -137,36 +132,24 @@ function RequestConsultation() {
           .sidebar-overlay.show {
             display: block;
           }
-          .menu-btn {
-            position: fixed;
-            top: 9px;
-            left: 15px;
-            background:rgb(37, 37, 37);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 18px;
+
+          /* Sidebar Buttons */
+          .btn {
+            background: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.3s ease;
             cursor: pointer;
-            border-radius: 5px;
-            z-index: 1100;
           }
-          .menu-btn:hover {
-            background:rgb(0, 0, 0);
-          }
-          .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-          }
+
           /* Sidebar Toggle Button */
           .menu-btn {
             position: fixed;
-            top: 10px; 
+            top: 15px;
             left: 15px;
             background:rgba(0, 123, 255, 0);
             color: white;
@@ -181,29 +164,32 @@ function RequestConsultation() {
           .menu-btn:hover {
             background:rgb(0, 0, 0);
             transform: scale(1.1);
+            radius:50%;
+          }
+          .btn-primary {
+            background:rgb(0, 0, 0);
+            border: none;
           }
 
-          /* Main Dashboard Content */
-          .dashboard-content {
-            padding: 50px;
-            text-align: center;
+          /* Main Content */
+          .content-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 500px;
+            margin-top: 50px;
+            text-align: center;
           }
 
-          /* Responsive Fix */
+          /* Form Styling */
+          .form-container {
+            background: white;
+            border-radius: 10px;
+          }
+
+          /* Responsive */
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
             }
-          }
-          .ms-2 {
-            margin-top: auto;
-          }
-            margin-top: auto;
-          }
-          .logout-container {
-            margin-top: auto;
           }
         `}
       </style>

@@ -9,7 +9,8 @@ import {
   deleteConsultation,
   createTeacherConsultation,
   getTeacherConsultations,
-  updateStatusReply
+  updateStatusReply,
+  getStudentStats
 } from "../controllers/consultationController.js";
 import { authorizeRoles } from "../middleware/authMiddleware.js";
 import Consultation from "../models/Consultation.js";
@@ -43,6 +44,8 @@ router.post("/teacher-consultation", authMiddleware, createTeacherConsultation);
 router.get("/teacher-consultations", authMiddleware, getTeacherConsultations);
 
 router.put('/update-status-reply', authMiddleware, updateStatusReply);
+
+router.get("/student-stats", getStudentStats);
 
 // Apply middleware for role-based access
 router.get("/consultations/all", authorizeRoles("Consultant"), getAllConsultations);

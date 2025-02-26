@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function TeacherDashboard() {
   const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({ studentsHelped: 0, activeConsultations: 0, avgRating: 0 });
   const navigate = useNavigate();
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  useEffect(() => {
+    async function fetchStats() {
+      const data = { studentsHelped: 152, activeConsultations: 12, avgRating: 4.8 };
+      setStats(data);
+    }
+    fetchStats();
+  }, []);
 
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -25,19 +28,18 @@ function TeacherDashboard() {
       {/* Sidebar Toggle Button */}
       <button className="menu-btn" onClick={toggleSidebar}>☰</button>
 
-      {/* Sidebar Overlay */}
-      {isSidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
-
-      {/* Sidebar Navigation */}
+      {/* Sidebar & Overlay */}
+      {isSidebarOpen && <div className="sidebar-overlay show" onClick={closeSidebar}></div>}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h3 className="text-center text-light mt-3">Teacher Panel</h3>
-        <button className="btn btn-primary w-100" onClick={() => navigate("/teacher-consultations")}>
+        <div className="sidebar-header">
+          <br></br>
+          <br></br>
+          <h3 className="text-light">Teacher Panel</h3>
+        </div>
+        <button className="btn btn-light-blue w-100" onClick={() => navigate("/teacher-consultations")}>
           View Consultations
         </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/student-requests")}>
-          Student Requests
-        </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/teacher-profile")}>
+        <button className="btn btn-light-blue w-100 mt-2" onClick={() => navigate("/teacher-profile")}>
           My Profile
         </button>
         <div className="logout-container">
@@ -49,79 +51,74 @@ function TeacherDashboard() {
 
       {/* Main Content */}
       <div className="container mt-5">
-        <h2 className="text-center text-success">Welcome, Teacher!</h2>
-        <p className="text-center text-muted">Manage consultations, student requests, and your profile.</p>
+        <h2 className="text-center text-primary">Welcome, Teacher!</h2>
+        <p className="text-center text-secondary">Manage consultations, student requests, and your profile.</p>
 
         {/* 🔹 Teacher Statistics Section */}
         <div className="row mt-4">
           <div className="col-md-4">
             <div className="dashboard-card">
               <h4>👨‍🎓 Students Helped</h4>
-              <p className="count">152</p>
+              <p className="count">{stats.studentsHelped}</p>
             </div>
           </div>
           <div className="col-md-4">
             <div className="dashboard-card">
               <h4>📅 Active Consultations</h4>
-              <p className="count">12</p>
+              <p className="count">{stats.activeConsultations}</p>
             </div>
           </div>
           <div className="col-md-4">
             <div className="dashboard-card">
               <h4>⭐ Avg. Rating</h4>
-              <p className="count">4.8 / 5</p>
+              <p className="count">{stats.avgRating} / 5</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 🔹 Sidebar & Dashboard Styles */}
+      {/* 🔹 Updated Styles */}
       <style>
         {`
-          .dashboard-container {
-            position: relative;
-            background: #f4f6f9;
-            min-height: 100vh;
-            padding-top: 20px;
+          /* General Styling */
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
           }
 
-          .menu-btn {
-            position: fixed;
-            top: 10px;
-            left: 15px;
-            background:rgb(43, 43, 43);
+          body {
+            background: #0d1117;
             color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
+            overflow-x: hidden;
           }
-          .menu-btn:hover {
-            background:rgb(0, 0, 0);
+          .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
           }
 
+          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
-            left: -270px;
-            width: 270px;
-            height: 100%;
-            background: #343a40;
+            left: -260px;
+            width: 260px;
+            height: 100vh;
+            background: #121212;
             padding: 20px;
             transition: left 0.3s ease-in-out;
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
           }
           .sidebar.open {
             left: 0;
           }
 
+          /* Sidebar Overlay */
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -132,44 +129,97 @@ function TeacherDashboard() {
             z-index: 999;
             display: none;
           }
+          .dashboard-card{
+          
+          }
           .sidebar-overlay.show {
             display: block;
           }
 
-          .logout-container {
-            margin-top: auto;
+          /* Sidebar Buttons */
+          .btn {
+            transition: all 0.3s ease-in-out;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+          }
+          .btn-primary {
+            background:rgb(0, 170, 255);
+            border: none;
+          }
+          .btn-warning {
+            background: #ffcc00;
+            border: none;
+          }
+          .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+          }
+
+          /* Sidebar Toggle Button */
+          .menu-btn {
+            position: fixed;
+            top: 10px;
+            left:2px;
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 8px;
+            z-index: 1100;
+            transition: all 0.3s ease-in-out;
+          }
+          .menu-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+            radius:50%;
           }
 
           /* 🔹 Dashboard Cards */
           .dashboard-card {
-            background: white;
+            background: #1e1e1e;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             text-align: center;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            color: white;
           }
           .dashboard-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
           }
           .dashboard-card h4 {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #ccc;
           }
           .dashboard-card .count {
             font-size: 24px;
             font-weight: bold;
-            color: #0066cc;
+            color: #00aaff;
             margin-top: 10px;
           }
 
-          /* 🔹 Responsive Layout */
+          /* Responsive Design */
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
+          @media (max-width: 576px) {
+            .row {
+              flex-direction: column;
+              align-items: center;
+            }
+            .col-md-4 {
+              width: 80%;
+              margin-bottom: 15px;
             }
           }
+          
         `}
       </style>
     </div>
