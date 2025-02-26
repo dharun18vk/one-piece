@@ -50,9 +50,14 @@ function StudentDashboard() {
         <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
           Request Teacher Consultation
         </button>
-        <button className="btn btn-danger ms-2" onClick={handleLogout}>
-          Logout
+        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/student-dashboard")}>
+          Back to Dashboard
         </button>
+        <div className="logout-container">
+          <button className="btn btn-danger w-100" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Welcome Message */}
@@ -100,9 +105,15 @@ function StudentDashboard() {
             transition: left 0.3s ease-in-out;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
-          }
+            display: flex;          /* ✅ Enables flexbox */
+            flex-direction: column; /* ✅ Aligns items vertically */
+            justify-content: space-between; 
+            }
           .sidebar.open {
             left: 0;
+          }
+          .logout-container {
+            margin-top: auto;
           }
 
           /* Sidebar Overlay */

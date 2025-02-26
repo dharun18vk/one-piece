@@ -223,18 +223,28 @@ export const updateStatusReply = async (req, res) => {
   try {
     const { consultationId, status, reply } = req.body;
 
-    // Fetch the consultation first
+    // ✅ Ensure consultationId is provided
+    if (!consultationId) {
+      return res.status(400).json({ message: "Consultation ID is required." });
+    }
+
+    // ✅ Fetch the consultation from the database
     const consultation = await Consultation.findById(consultationId);
     if (!consultation) {
       return res.status(404).json({ error: "Consultation not found" });
     }
 
-    // Ensure only assigned consultants/teachers can update
-    if (consultation.consultant.toString() !== req.user._id.toString()) {
+    // ✅ Ensure only assigned consultants/teachers can update
+    if (consultation.consultant && consultation.consultant.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized to update this consultation" });
     }
 
-    // Update the consultation
+    // ✅ Validate status
+    if (!["Pending", "Approved", "Rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    // ✅ Update the consultation
     consultation.status = status;
     consultation.reply = reply;
     await consultation.save();
@@ -245,6 +255,7 @@ export const updateStatusReply = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const getTeacherConsultations = async (req, res) => {
   try {

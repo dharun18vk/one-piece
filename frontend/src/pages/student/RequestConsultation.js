@@ -98,9 +98,11 @@ function RequestConsultation() {
           ></textarea>
         </div>
 
-        <button className="btn btn-success w-100" onClick={handleCreate}>
-          Submit Request
-        </button>
+        <div className="logout-container">
+          <button className="btn btn-success w-100" onClick={handleCreate}>
+            Submit Request
+          </button>
+        </div>
       </div>
       <style>
         {`
@@ -114,6 +116,9 @@ function RequestConsultation() {
             padding: 20px;
             transition: left 0.3s ease-in-out;
             z-index: 1000;
+            display: flex;          /* ✅ Enables flexbox */
+            flex-direction: column; /* ✅ Aligns items vertically */
+            justify-content: space-between; 
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
           }
           .sidebar.open {
@@ -195,6 +200,9 @@ function RequestConsultation() {
           .ms-2 {
             margin-top: auto;
           }
+            margin-top: auto;
+          }
+          .logout-container {
             margin-top: auto;
           }
         `}

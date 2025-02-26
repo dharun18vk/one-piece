@@ -126,6 +126,24 @@ app.post("/consultations/create", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error. Please try again." });
   }
 });
+app.put("/consultations/update/:id", async (req, res) => {
+  try {
+    const { topic, description } = req.body;
+    const updatedConsultation = await Consultation.findByIdAndUpdate(
+      req.params.id,
+      { topic, description },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedConsultation) {
+      return res.status(404).json({ message: "Consultation not found" });
+    }
+
+    res.json(updatedConsultation);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating consultation", error });
+  }
+});
 
 // Start Server
 app.listen(PORT, () => {

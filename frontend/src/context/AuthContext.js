@@ -1,38 +1,31 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-// ✅ Create Auth Context
 const AuthContext = createContext();
 
-// ✅ Provide Auth State to Entire App
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // ✅ Load user from localStorage on refresh
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-    // ✅ Load user from localStorage when app starts
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
+  // ✅ Persist user data when logging in
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData)); // Save user to localStorage
+  };
 
-    // ✅ Login Function (Updates user globally)
-    const login = (userData) => {
-        localStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData); // ✅ Updates state without needing refresh
-    };
+  // ✅ Clear user data on logout
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user"); // Remove user from localStorage
+  };
 
-    // ✅ Logout Function
-    const logout = () => {
-        localStorage.removeItem("user");
-        setUser(null);
-    };
-
-    return (
-        <AuthContext.Provider value={{ user, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-// ✅ Custom Hook to Use Auth Context
 export const useAuth = () => useContext(AuthContext);

@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 function StudentConsultations() {
   const { logout } = useAuth();
   const [consultations, setConsultations] = useState([]);
+  const [expandedConsultation, setExpandedConsultation] = useState(null);
   const [selectedConsultation, setSelectedConsultation] = useState(null);
   const [newConsultation, setNewConsultation] = useState({ topic: "", description: "" });
   const [isEditing, setIsEditing] = useState(false);
@@ -37,22 +38,27 @@ function StudentConsultations() {
 
   useEffect(() => {
     fetchConsultations();
-  }, [fetchConsultations]);
+  }, []);
 
-  // ✅ Open modal for editing
+  // ✅ Toggle consultation details
+  const toggleConsultationDetails = (consultationId) => {
+    setExpandedConsultation(expandedConsultation === consultationId ? null : consultationId);
+  };
+
+  // ✅ Open edit modal
   const openModal = (consultation) => {
     setSelectedConsultation(consultation);
     setNewConsultation({ topic: consultation.topic, description: consultation.description });
     setIsEditing(true);
   };
 
-  // ✅ Close modal
+  // ✅ Close edit modal
   const closeModal = () => {
     setSelectedConsultation(null);
     setIsEditing(false);
   };
 
-  // ✅ Handle input change for new consultations
+  // ✅ Handle input change in edit modal
   const handleInputChange = (e) => {
     setNewConsultation({ ...newConsultation, [e.target.name]: e.target.value });
   };
@@ -61,12 +67,26 @@ function StudentConsultations() {
   const handleSave = async () => {
     try {
       const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        alert("User not authenticated!");
+        return;
+      }
+      
       const { token } = JSON.parse(storedUser);
-
+  
+      const updatedConsultation = {
+        topic: newConsultation.topic,
+        description: newConsultation.description,
+        status: selectedConsultation.status,  
+        recipientType: selectedConsultation.recipientType,
+        consultant: selectedConsultation.consultant,
+        reply: selectedConsultation.reply || "",
+      };
+  
       if (isEditing) {
         await axios.put(
           `http://localhost:5000/consultations/update/${selectedConsultation._id}`,
-          newConsultation,
+          updatedConsultation,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert("Consultation updated successfully!");
@@ -78,7 +98,7 @@ function StudentConsultations() {
         );
         alert("Consultation created successfully!");
       }
-
+  
       fetchConsultations();
       closeModal();
     } catch (error) {
@@ -100,38 +120,18 @@ function StudentConsultations() {
       });
 
       alert("Consultation deleted successfully!");
-      fetchConsultations();
     } catch (error) {
       console.error("Error deleting consultation:", error);
       alert("Failed to delete consultation. Try again!");
     }
   };
 
-  // ✅ Sidebar toggle functions
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
-  const handleLogout = () => {
-    logout(); // ✅ Clears user state
-    navigate("/login"); // ✅ Redirect to login page
-  };
-
   return (
     <div className="dashboard-container">
       {/* Sidebar Toggle Button */}
-      <button className="menu-btn" onClick={toggleSidebar}>
-        ☰ 
-      </button>
+      <button className="menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>☰</button>
 
-      {/* Sidebar Overlay (Closes sidebar when clicked) */}
-      <div className={`sidebar-overlay ${isSidebarOpen ? "show" : ""}`} onClick={closeSidebar}></div>
-
-      {/* Sidebar Navigation */}
+      {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <h4 className="text-center text-light mt-3">Menu</h4>
         <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
@@ -143,31 +143,47 @@ function StudentConsultations() {
         <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
           Request Teacher Consultation
         </button>
-        <button className="btn btn-danger ms-2" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="logout-container">
+          <button className="btn btn-danger w-100" onClick={logout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
       <div className="container mt-5">
         <h2 className="text-center text-info">Your Consultations</h2>
-
+        
         {consultations.length > 0 ? (
           <ul className="list-group mt-3">
             {consultations.map((consultation) => (
               <li key={consultation._id} className="list-group-item">
-                <strong>{consultation.topic}</strong>
-                <p className="mb-1">{consultation.description}</p>
-                <p><strong>Status:</strong> {consultation.status}</p>
-                <p><strong>Consultant's Reply:</strong> {consultation.reply || "No reply yet"}</p>
+                {/* ✅ Click to toggle details */}
+                <div className="d-flex justify-content-between align-items-center cursor-pointer" 
+                     onClick={() => toggleConsultationDetails(consultation._id)}
+                     style={{ cursor: "pointer" }}>
+                  <strong>{consultation.topic}</strong>
+                  <span className="text-muted">
+                    {expandedConsultation === consultation._id ? "▲" : "▼"}
+                  </span>
+                </div>
 
-                {/* Edit and Delete Buttons */}
-                <button className="btn btn-warning btn-sm mx-2" onClick={() => openModal(consultation)}>
-                  Edit
-                </button>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(consultation._id)}>
-                  Delete
-                </button>
+                {/* ✅ Show details only when expanded */}
+                {expandedConsultation === consultation._id && (
+                  <div className="mt-2 p-3 border rounded bg-light">
+                    <p><strong>Description:</strong> {consultation.description}</p>
+                    <p><strong>Status:</strong> {consultation.status}</p>
+                    <p><strong>Consultant's Reply:</strong> {consultation.reply || "No reply yet"}</p>
+
+                    {/* Edit and Delete Buttons */}
+                    <button className="btn btn-warning btn-sm mx-2" onClick={() => openModal(consultation)}>
+                      Edit
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(consultation._id)}>
+                      Delete
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -175,6 +191,23 @@ function StudentConsultations() {
           <p className="text-center text-muted mt-3">No consultation requests found.</p>
         )}
       </div>
+
+      {/* ✅ Modal for Editing Consultation */}
+      {isEditing && selectedConsultation && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Edit Consultation</h3>
+            <label>Topic:</label>
+            <input type="text" name="topic" value={newConsultation.topic} onChange={handleInputChange} className="form-control" />
+
+            <label>Description:</label>
+            <textarea name="description" value={newConsultation.description} onChange={handleInputChange} className="form-control" />
+
+            <button className="btn btn-success mt-2" onClick={handleSave}>Save</button>
+            <button className="btn btn-secondary mt-2" onClick={closeModal}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       {/* Sidebar & Overlay Styles */}
       <style>
@@ -190,6 +223,12 @@ function StudentConsultations() {
             transition: left 0.3s ease-in-out;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;          /* ✅ Enables flexbox */
+            flex-direction: column; /* ✅ Aligns items vertically */
+            justify-content: space-between; 
+            }
+          .logout-container {
+            margin-top: auto;
           }
           .sidebar.open {
             left: 0;
@@ -206,6 +245,26 @@ function StudentConsultations() {
           }
           .sidebar-overlay.show {
             display: block;
+          }
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+          }
+
+          .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
           }
           .menu-btn {
             position: fixed;

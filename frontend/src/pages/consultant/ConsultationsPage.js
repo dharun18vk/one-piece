@@ -8,11 +8,12 @@ function ConsultationsPage() {
   const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [consultations, setConsultations] = useState([]);
-  const [status, setStatus] = useState("");
-  const [reply, setReply] = useState("");
+  const [expandedConsultation, setExpandedConsultation] = useState(null); // ✅ Track which consultation is expanded
+  const [status, setStatus] = useState({});
+  const [replies, setReplies] = useState({});
   const navigate = useNavigate();
 
-  // ✅ Fetch consultations with useCallback to prevent re-creation
+  // ✅ Fetch consultations
   const fetchConsultations = useCallback(async () => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -38,29 +39,57 @@ function ConsultationsPage() {
     }
   }, [navigate]);
 
-  // ✅ Fetch consultations on component mount
   useEffect(() => {
     fetchConsultations();
   }, [fetchConsultations]);
 
+  // ✅ Toggle consultation details
+  const toggleConsultationDetails = (consultationId) => {
+    setExpandedConsultation(expandedConsultation === consultationId ? null : consultationId);
+  };
+
+  // ✅ Fix: Define handleStatusChange separately
+  const handleStatusChange = (consultationId, newStatus) => {
+    setStatus((prev) => ({ ...prev, [consultationId]: newStatus }));
+  };
+
+  // ✅ Fix: Define handleReplyChange separately
+  const handleReplyChange = (consultationId, newReply) => {
+    setReplies((prev) => ({ ...prev, [consultationId]: newReply }));
+  };
+
+  // ✅ Update consultation with independent replies
   const handleUpdate = async (consultationId, recipientType) => {
     try {
       const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        alert("User not authenticated!");
+        return;
+      }
+
       const { token } = JSON.parse(storedUser);
-  
-      const data = { consultationId, status, reply, recipientType }; // Ensure recipientType is included
-  
+
+      const data = {
+        consultationId,
+        status: status[consultationId] || "Pending", // ✅ Ensure valid status
+        reply: replies[consultationId] || "", // ✅ Ensure reply is a string
+        recipientType,
+      };
+
+      console.log("Sending update request:", data); // ✅ Debugging step
+
       await axios.put("http://localhost:5000/consultations/update-status-reply", data, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       alert("Consultation updated successfully!");
       fetchConsultations();
     } catch (error) {
-      console.error("Error updating consultation:", error);
+      console.error("Error updating consultation:", error.response?.data || error);
       alert("Failed to update consultation. Try again!");
     }
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -68,19 +97,18 @@ function ConsultationsPage() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
+
   const handleLogout = () => {
-    logout(); // ✅ Clears user state
-    navigate("/login"); // ✅ Redirect to login page
+    logout();
+    navigate("/login");
   };
 
   return (
     <div className="container mt-5">
       <h2 className="text-center text-primary">Consultations</h2>
-      <button className="menu-btn" onClick={toggleSidebar}>
-        ☰ 
-      </button>
+      <button className="menu-btn" onClick={toggleSidebar}>☰</button>
 
-      {/* Sidebar Overlay (Closes sidebar when clicked) */}
+      {/* Sidebar Overlay */}
       <div className={`sidebar-overlay ${isSidebarOpen ? "show" : ""}`} onClick={closeSidebar}></div>
 
       {/* Sidebar Navigation */}
@@ -92,74 +120,74 @@ function ConsultationsPage() {
         <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/consultant-dashboard")}>
           Back to Dashboard
         </button>
-        <button className="btn btn-danger ms-2" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="logout-container">
+          <button className="btn btn-danger w-100" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {consultations.length > 0 ? (
         <ul className="list-group mt-3">
           {consultations.map((consultation) => (
             <li key={consultation._id} className="list-group-item">
-              <strong>{consultation.topic}</strong>
-              <p>{consultation.description}</p>
-              <p><strong>Student:</strong> {consultation.student?.name || "Unknown"}</p>
-              <p><strong>Status:</strong> {consultation.status}</p>
-              <p><strong>Reply:</strong> {consultation.reply || "No reply yet"}</p>
-
-              {/* Dropdown for status update */}
-              <select className="form-control my-2" onChange={(e) => setStatus(e.target.value)}>
-                <option value="">Select Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-
-              {/* Textarea for reply */}
-              <textarea
-                className="form-control my-2"
-                placeholder="Write a reply..."
-                value={reply}
-                onChange={(e) => setReply(e.target.value)}
-              ></textarea>
-
-              <button 
-                className="btn btn-success" 
-                onClick={() => handleUpdate(consultation._id, consultation.recipientType)}
+              {/* ✅ Click to toggle details */}
+              <div 
+                className="d-flex justify-content-between align-items-center cursor-pointer" 
+                onClick={() => toggleConsultationDetails(consultation._id)}
+                style={{ cursor: "pointer" }}
               >
-                Update Status & Send Reply
-              </button>
+                <strong>{consultation.topic}</strong>
+                <span className="text-muted">
+                  {expandedConsultation === consultation._id ? "▲" : "▼"}
+                </span>
+              </div>
 
+              {/* ✅ Show details only when expanded */}
+              {expandedConsultation === consultation._id && (
+                <div className="mt-2 p-3 border rounded bg-light">
+                  <p><strong>Description:</strong> {consultation.description}</p>
+                  <p><strong>Student:</strong> {consultation.student?.name || "Unknown"}</p>
+                  <p><strong>Status:</strong> {consultation.status}</p>
+                  <p><strong>Reply:</strong> {consultation.reply || "No reply yet"}</p>
+
+                  {/* Status Dropdown */}
+                  <select
+                    className="form-control my-2"
+                    value={status[consultation._id] || consultation.status}
+                    onChange={(e) => handleStatusChange(consultation._id, e.target.value)}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+
+                  {/* Reply Input Field */}
+                  <textarea
+                    className="form-control my-2"
+                    placeholder="Write a reply..."
+                    value={replies[consultation._id] || ""}
+                    onChange={(e) => handleReplyChange(consultation._id, e.target.value)}
+                  ></textarea>
+
+                  {/* Update Button */}
+                  <button 
+                    className="btn btn-success" 
+                    onClick={() => handleUpdate(consultation._id, consultation.recipientType)}
+                  >
+                    Update Status & Send Reply
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       ) : (
         <p className="text-center text-muted mt-3">No consultation requests available.</p>
       )}
-          <style>
+      {/* Sidebar & Overlay Styles */}
+      <style>
         {`
-          /* Full Page Styling */
-          html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-          }
-
-          /* Dashboard Container */
-          .dashboard-container {
-            position: relative;
-            min-height: 100vh;
-            background: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease-in-out;
-          }
-
-          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
@@ -171,17 +199,16 @@ function ConsultationsPage() {
             transition: left 0.3s ease-in-out;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Pushes Logout button to the bottom */
-            height: 100vh; /* Full height */
-            padding-bottom: 20px; /* Space at bottom */
-          }
+            display: flex;          /* ✅ Enables flexbox */
+            flex-direction: column; /* ✅ Aligns items vertically */
+            justify-content: space-between; 
+            }
           .sidebar.open {
             left: 0;
           }
-
-          /* Sidebar Overlay */
+          .logout-container {
+            margin-top: auto;
+          }
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -195,20 +222,22 @@ function ConsultationsPage() {
           .sidebar-overlay.show {
             display: block;
           }
-
-          /* Sidebar Buttons */
-          .btn {
-            transition: all 0.3s ease-in-out;
-            border-radius: 8px;
-            padding: 10px;
-            font-weight: bold;
+          .menu-btn {
+            position: fixed;
+            top: 9px;
+            left: 15px;
+            background:rgb(37, 37, 37);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 1100;
           }
-          .btn:hover {
-            filter: brightness(90%);
-            transform: scale(1.05);
+          .menu-btn:hover {
+            background:rgb(0, 0, 0);
           }
-
-          /* Close Button */
           .close-btn {
             background: none;
             border: none;
@@ -218,47 +247,6 @@ function ConsultationsPage() {
             position: absolute;
             top: 10px;
             right: 15px;
-          }
-          .close-btn:hover {
-            color: #ff4757;
-          }
-
-          /* Sidebar Toggle Button */
-          .menu-btn {
-            position: fixed;
-            top: 10px; 
-            left: 15px;
-            background:rgba(0, 123, 255, 0);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
-          }
-          .menu-btn:hover {
-            background:rgb(0, 0, 0);
-            transform: scale(1.1);
-          }
-
-          /* Main Dashboard Content */
-          .dashboard-content {
-            padding: 50px;
-            text-align: center;
-            width: 100%;
-            max-width: 800px;
-          }
-
-          /* Responsive Fix */
-          @media (max-width: 768px) {
-            .sidebar {
-              width: 100%;
-            }
-          }
-          .ms-2 {
-            margin-top: auto;
           }
         `}
       </style>

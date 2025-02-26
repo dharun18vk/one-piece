@@ -70,9 +70,11 @@ function RequestTeacherConsultation() {
         <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/student-dashboard")}>
           Back to Dashboard
         </button>
-        <button className="btn btn-danger ms-2" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="logout-container">
+          <button className="btn btn-danger w-100" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>      
       <div className="card p-4 shadow-lg">
         <div className="mb-3">
@@ -135,6 +137,12 @@ function RequestTeacherConsultation() {
             transition: left 0.3s ease-in-out;
             z-index: 1000;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;          /* ✅ Enables flexbox */
+            flex-direction: column; /* ✅ Aligns items vertically */
+            justify-content: space-between;             
+          }
+          .logout-container {
+            margin-top: auto;
           }
           .sidebar.open {
             left: 0;
