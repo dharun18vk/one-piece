@@ -205,9 +205,9 @@ function ConsultationsPage() {
 
           .menu-btn {
             position: fixed;
-            top: 20px;
+            top: 5px;
             left: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0);
             border: none;
             color: white;
             padding: 12px;
@@ -223,7 +223,7 @@ function ConsultationsPage() {
           }
 
           .menu-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0);
             transform: scale(1.1);
           }
 
@@ -233,7 +233,7 @@ function ConsultationsPage() {
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.11);
             backdrop-filter: blur(15px);
             padding: 20px;
             transition: left 0.3s ease;
@@ -257,7 +257,7 @@ function ConsultationsPage() {
           }
 
           .sidebar-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgb(0, 0, 0);
             border: none;
             color: white;
             padding: 12px 15px;

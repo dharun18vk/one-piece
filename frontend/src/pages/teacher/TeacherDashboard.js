@@ -25,55 +25,43 @@ function TeacherDashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar Toggle Button */}
-      <button className="menu-btn" onClick={toggleSidebar}>☰</button>
-
-      {/* Sidebar & Overlay */}
-      {isSidebarOpen && <div className="sidebar-overlay show" onClick={closeSidebar}></div>}
+      <video autoPlay loop muted playsInline className="background-video">
+        <source src="https://videos.pexels.com/video-files/4063585/4063585-hd_1920_1080_30fps.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <button className={`menu-btn ${isSidebarOpen ? "shift-right" : ""}`} onClick={toggleSidebar}>
+        ☰
+      </button>
+      {isSidebarOpen && <div className="sidebar-overlay" onClick={closeSidebar}></div>}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <div className="sidebar-header">
-          <br></br>
-          <br></br>
-        </div>
-        <button className="btn btn-light-blue w-100" onClick={() => navigate("/teacher-consultations")}>
-          View Consultations
+        <h3 className="sidebar-title">Teacher Panel</h3>
+        <button className="sidebar-btn" onClick={() => navigate("/teacher-consultations")}>
+          👨‍🏫 Consultations
         </button>
-        <button className="btn btn-light-blue w-100 mt-2" onClick={() => navigate("/teacher-profile")}>
-          My Profile
+        <button className="sidebar-btn" onClick={() => navigate("/student-dashboard")}>
+          🏠 Back to Dashboard
         </button>
-        
-        {/* Logout Button (Moved to Bottom) */}
-        <div className="logout-container">
-          <button className="btn btn-logout" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+        <button className="sidebar-btn logout-btn" onClick={handleLogout}>
+          🚪 Logout
+        </button>
       </div>
-
       {/* Main Content */}
-      <div className="container mt-5">
-        <h2 className="text-center text-primary">Welcome, Teacher!</h2>
-        <p className="text-center text-secondary">Manage consultations, student requests, and your profile.</p>
+      <div className="main-content">
+        <h2 className="welcome-title">Welcome, Teacher!</h2>
+        <p className="welcome-subtitle">Manage consultations, student requests, and your profile.</p>
 
-        {/* Teacher Statistics Section */}
-        <div className="row mt-4">
-          <div className="col-md-4">
-            <div className="dashboard-card">
+        <div className="stats-grid">
+          <div className="stats-card">
               <h4>👨‍🎓 Students Helped</h4>
               <p className="count">{stats.studentsHelped}</p>
-            </div>
           </div>
-          <div className="col-md-4">
-            <div className="dashboard-card">
+          <div className="stats-card">
               <h4>📅 Active Consultations</h4>
               <p className="count">{stats.activeConsultations}</p>
-            </div>
           </div>
-          <div className="col-md-4">
-            <div className="dashboard-card">
+          <div className="stats-card">
               <h4>⭐ Avg. Rating</h4>
               <p className="count">{stats.avgRating} / 5</p>
-            </div>
           </div>
         </div>
       </div>
@@ -81,50 +69,81 @@ function TeacherDashboard() {
       {/* Updated Styles */}
       <style>
         {`
-          /* General Styling */
           * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Poppins', sans-serif;
           }
+          .background-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+          }
 
           body {
-            background: #0d1117;
+            background: linear-gradient(rgba(0, 0, 0, 0), rgba(82, 24, 24, 0)),
+              url('https://images.pexels.com/photos/3473569/pexels-photo-3473569.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
+                no-repeat center center/cover;
+            background-attachment: fixed;
             color: white;
-            overflow-x: hidden;
           }
 
           .dashboard-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
           }
 
-          /* Sidebar */
+          .menu-btn {
+            position: fixed;
+            top: 5px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+          }
+
+          .menu-btn.shift-right {
+            left: 280px; /* Adjust based on sidebar width */
+          }
+
+          .menu-btn:hover {
+            background: rgba(255, 255, 255, 0);
+            transform: scale(1.1);
+          }
+
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
             padding: 20px;
             transition: left 0.3s ease;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Pushes logout button to bottom */
+            gap: 10px;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
+
           .sidebar.open {
             left: 0;
           }
 
-          /* Sidebar Overlay */
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -135,107 +154,121 @@ function TeacherDashboard() {
             z-index: 999;
             display: none;
           }
+
           .sidebar-overlay.show {
             display: block;
           }
 
-          /* Sidebar Buttons */
-          .btn {
-            background: transparent;
-            border: 2px solid #007bff;
-            color: #007bff;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: background 0.3s ease, transform 0.3s ease;
-            cursor: pointer;
-          }
-          .btn:hover {
-            background:rgb(17, 144, 248);
+          .sidebar-title {
             color: white;
-            transform: scale(1.05);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
           }
 
-          /* Sidebar Toggle Button */
-          .menu-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: transparent;
-            color: white;
+          .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
             border: none;
-            padding: 12px 18px;
-            font-size: 22px;
-            cursor: pointer;
-            border-radius: 8px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
-          }
-          .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
-            transform: scale(1.1);
-          }
-
-          /* Logout Button */
-          .logout-container {
-            margin-top: auto; /* Pushes to bottom */
-            padding-bottom: 10px;
-          }
-          .btn-logout {
-            background:rgba(0, 0, 0, 0);
-            border: 2px solid #cc0000;
             color: white;
-            padding: 10px;
-            width: 100%;
-            font-size: 16px;
+            padding: 12px 15px;
             border-radius: 8px;
-            transition: background 0.3s ease, transform 0.3s ease;
+            font-size: 16px;
+            text-align: left;
             cursor: pointer;
-          }
-          .btn-logout:hover {
-            background: #cc0000;
-            transform: scale(1.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
           }
 
-          /* Dashboard Cards */
-          .dashboard-card {
-            background: #1e1e1e;
+          .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+          }
+
+          .logout-btn {
+            margin-top: auto;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+          }
+
+          .logout-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+          }
+
+          .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            height:300px; 
+            backdrop-filter:blur(15px);
+            margin-left: ${isSidebarOpen ? "260px" : "0"};
+            transition: margin-left 0.3s ease;
+          }
+
+          .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 10px;
+          }
+
+          .welcome-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+          }
+
+          .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+          }
+
+          .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             text-align: center;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
           }
 
-          .dashboard-card h4 {
-            font-size: 18px;
+          .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+          }
+
+          .stats-card h4 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+          }
+
+          .stats-card .count {
+            font-size: 2rem;
             font-weight: 600;
-            color: #ccc;
-          }
-
-          .dashboard-card .count {
-            font-size: 24px;
-            font-weight: bold;
             color: #00aaff;
-            margin-top: 10px;
           }
 
-          /* Responsive Design */
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
+              left: -100%;
             }
-          }
-          @media (max-width: 576px) {
-            .row {
-              flex-direction: column;
-              align-items: center;
+
+            .sidebar.open {
+              left: 0;
             }
-            .col-md-4 {
-              width: 80%;
-              margin-bottom: 15px;
+
+            .main-content {
+              margin-left: 0;
+            }
+
+            .menu-btn.shift-right {
+              left: calc(100% - 60px); /* Adjust for mobile */
             }
           }
         `}

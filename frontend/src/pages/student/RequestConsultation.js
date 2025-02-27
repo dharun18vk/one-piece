@@ -120,7 +120,7 @@ function RequestConsultation() {
              width: 100vw;
              height: 100vh;
              background: linear-gradient(rgba(192, 187, 187, 0), rgba(0, 0, 0, 0)),
-              url('https://videos.pexels.com/video-files/6755352/6755352-hd_1920_1080_25fps.mp4')
+              url('https://images.pexels.com/photos/592077/pexels-photo-592077.jpeg')
                 no-repeat center center/cover;
              top: 0;
              left: 0;
