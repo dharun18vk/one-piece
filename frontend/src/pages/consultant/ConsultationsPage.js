@@ -183,7 +183,6 @@ function ConsultationsPage() {
       {/* Sidebar Styles */}
       <style>
         {`
-          /* General Styling */
           * {
             box-sizing: border-box;
             margin: 0;
@@ -192,120 +191,265 @@ function ConsultationsPage() {
           }
 
           body {
-            background: #0d1117;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)),
+              url('https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
+                no-repeat center center/cover;
+            background-attachment: fixed;
             color: white;
-            overflow-x: hidden;
           }
 
           .dashboard-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
           }
 
-          /* Sidebar */
+          .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+          }
+
+          .menu-btn.shift-right {
+            left: 280px; /* Adjust based on sidebar width */
+          }
+
+          .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+          }
+
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
             padding: 20px;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease;
             z-index: 1000;
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
+
           .sidebar.open {
             left: 0;
           }
 
-          /* Sidebar Overlay */
-          .sidebar-overlay {
+          .sidebar-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+          }
+
+          .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+          }
+
+          .logout-btn {
+            margin-top: auto;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+          }
+
+          .logout-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+          }
+
+          .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: ${isSidebarOpen ? "260px" : "0"};
+            transition: margin-left 0.3s ease;
+          }
+
+          .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00aaff;
+          }
+
+          .consultation-list {
+            list-style: none;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+
+          .consultation-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+          }
+
+          .consultation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+          }
+
+          .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .toggle-icon {
+            font-size: 18px;
+          }
+
+          .consultation-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+          }
+
+          .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+          }
+
+          .btn-edit, .btn-delete, .btn-save, .btn-cancel {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .btn-edit {
+            background: #ffcc00;
+            color: black;
+          }
+
+          .btn-delete {
+            background: #dc3545;
+            color: white;
+          }
+
+          .btn-save {
+            background: #00aaff;
+            color: white;
+          }
+
+          .btn-cancel {
+            background: #6c757d;
+            color: white;
+          }
+
+          .btn-edit:hover, .btn-delete:hover, .btn-save:hover, .btn-cancel:hover {
+            transform: translateY(-2px);
+          }
+
+          .no-consultations {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 20px;
+          }
+
+          .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-          }
-          .sidebar-overlay.show {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
           }
 
-          /* Sidebar Buttons */
-          .btn {
-            transition: all 0.3s ease-in-out;
+          .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 20px;
             border-radius: 10px;
-            padding: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
-          }
-          .btn-primary {
-            background:rgb(0, 170, 255);
-            border: none;
-          }
-          .btn-warning {
-            background: #ffcc00;
-            border: none;
-          }
-          .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
           }
 
-          /* Sidebar Toggle Button */
-          .menu-btn {
-            position: fixed;
-            top: 10px;
-            left:2px;
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 22px;
-            cursor: pointer;
-            border-radius: 8px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
-          }
-          .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
-            transform: scale(1.1);
-            radius:50%;
+          .form-group {
+            margin-bottom: 15px;
           }
 
-          /* Welcome Text */
-          .dashboard-content {
-            padding: 50px;
-            text-align: center;
+          .form-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+          }
+
+          .form-input {
             width: 100%;
-            max-width: 800px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, background 0.3s ease;
           }
 
-          .title-text {
-            font-size: 32px;
-            font-weight: bold;
-            color: #007bff;
-            text-shadow: 2px 2px 10px rgba(0, 123, 255, 0.5);
+          .form-input:focus {
+            border-color: #00aaff;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
           }
 
-          .subtitle-text {
-            font-size: 18px;
-            color: #ddd;
-            margin-top: 10px;
-          }
-
-          /* Responsive Design */
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
+              left: -100%;
+            }
+
+            .sidebar.open {
+              left: 0;
+            }
+
+            .main-content {
+              margin-left: 0;
+            }
+
+            .menu-btn.shift-right {
+              left: calc(100% - 60px); /* Adjust for mobile */
             }
           }
         `}

@@ -7,12 +7,11 @@ function TeacherConsultations() {
   const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [consultations, setConsultations] = useState([]);
-  const [expandedConsultation, setExpandedConsultation] = useState(null); // ✅ Track expanded consultation
+  const [expandedConsultation, setExpandedConsultation] = useState(null);
   const [status, setStatus] = useState({});
   const [replies, setReplies] = useState({});
   const navigate = useNavigate();
 
-  // ✅ Fetch teacher consultations
   const fetchConsultations = useCallback(async () => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -38,22 +37,18 @@ function TeacherConsultations() {
     fetchConsultations();
   }, [fetchConsultations]);
 
-  // ✅ Toggle consultation details
   const toggleConsultationDetails = (consultationId) => {
     setExpandedConsultation(expandedConsultation === consultationId ? null : consultationId);
   };
 
-  // ✅ Handle status change per consultation
   const handleStatusChange = (consultationId, newStatus) => {
     setStatus((prev) => ({ ...prev, [consultationId]: newStatus }));
   };
 
-  // ✅ Handle reply change per consultation
   const handleReplyChange = (consultationId, newReply) => {
     setReplies((prev) => ({ ...prev, [consultationId]: newReply }));
   };
 
-  // ✅ Update consultation status & reply
   const handleUpdate = async (consultationId) => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -64,8 +59,6 @@ function TeacherConsultations() {
         status: status[consultationId] || "Pending",
         reply: replies[consultationId] || "",
       };
-
-      console.log("Sending update request:", data);
 
       await axios.put("http://localhost:5000/consultations/update-status-reply", data, {
         headers: { Authorization: `Bearer ${token}` },
@@ -79,14 +72,8 @@ function TeacherConsultations() {
     }
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -94,15 +81,14 @@ function TeacherConsultations() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar Toggle Button */}
       <button className="menu-btn" onClick={toggleSidebar}>☰</button>
 
       {/* Sidebar & Overlay */}
       {isSidebarOpen && <div className="sidebar-overlay show" onClick={closeSidebar}></div>}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <br></br>
-          <br></br>
+        <br></br>
+        <br></br>
           <h3 className="text-light">Teacher Panel</h3>
         </div>
         <button className="btn btn-light-blue w-100" onClick={() => navigate("/teacher-consultations")}>
@@ -111,8 +97,10 @@ function TeacherConsultations() {
         <button className="btn btn-light-blue w-100 mt-2" onClick={() => navigate("/teacher-dashboard")}>
           Back to Dashboard
         </button>
+
+        {/* Logout Button (Moved to Bottom) */}
         <div className="logout-container">
-          <button className="btn btn-danger w-100" onClick={handleLogout}>
+          <button className="btn btn-logout" onClick={handleLogout}>
             Logout
           </button>
         </div>
@@ -122,9 +110,8 @@ function TeacherConsultations() {
         <ul className="list-group mt-3">
           {consultations.map((consultation) => (
             <li key={consultation._id} className="list-group-item">
-              {/* ✅ Click to toggle details */}
               <div
-                className="d-flex justify-content-between align-items-center cursor-pointer"
+                className="d-flex justify-content-between align-items-center"
                 onClick={() => toggleConsultationDetails(consultation._id)}
                 style={{ cursor: "pointer" }}
               >
@@ -134,7 +121,6 @@ function TeacherConsultations() {
                 </span>
               </div>
 
-              {/* ✅ Show details only when expanded */}
               {expandedConsultation === consultation._id && (
                 <div className="mt-2 p-3 border rounded bg-light">
                   <p><strong>Description:</strong> {consultation.description}</p>
@@ -142,7 +128,6 @@ function TeacherConsultations() {
                   <p><strong>Status:</strong> {consultation.status}</p>
                   <p><strong>Reply:</strong> {consultation.reply || "No reply yet"}</p>
 
-                  {/* Status Dropdown */}
                   <select
                     className="form-control my-2"
                     value={status[consultation._id] || consultation.status}
@@ -153,7 +138,6 @@ function TeacherConsultations() {
                     <option value="Rejected">Rejected</option>
                   </select>
 
-                  {/* Reply Input Field */}
                   <textarea
                     className="form-control my-2"
                     placeholder="Write a reply..."
@@ -161,11 +145,7 @@ function TeacherConsultations() {
                     onChange={(e) => handleReplyChange(consultation._id, e.target.value)}
                   ></textarea>
 
-                  {/* Update Button */}
-                  <button
-                    className="btn btn-success"
-                    onClick={() => handleUpdate(consultation._id)}
-                  >
+                  <button className="btn btn-success" onClick={() => handleUpdate(consultation._id)}>
                     Update Status & Send Reply
                   </button>
                 </div>
@@ -177,42 +157,54 @@ function TeacherConsultations() {
         <p className="text-center text-muted mt-3">No teacher consultations available.</p>
       )}
 
-      {/* Sidebar & Overlay Styles */}
+      {/* Sidebar & Logout Styles */}
       <style>
         {`
+          /* General Styling */
           * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Poppins', sans-serif;
           }
+
           body {
             background: #0d1117;
             color: white;
             overflow-x: hidden;
           }
+
           .dashboard-container {
-            position: relative;
+            display: inline;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
           }
 
-          /* Sidebar */
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: #121212;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             padding: 20px;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease;
             z-index: 1000;
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
           .sidebar.open {
             left: 0;
           }
-
-          /* Sidebar Overlay */
+          .logout-container {
+            margin-top: auto;
+            padding-bottom: 10px;
+          }
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -223,33 +215,49 @@ function TeacherConsultations() {
             z-index: 999;
             display: none;
           }
-          .dashboard-card{
-          
-          }
           .sidebar-overlay.show {
             display: block;
           }
 
           /* Sidebar Buttons */
           .btn {
-            transition: all 0.3s ease-in-out;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: bold;
+            background: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 10px;
             margin-bottom: 10px;
+            border-radius: 8px;
             font-size: 16px;
+            transition: background 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+          }
+          .btn-logout {
+            background:rgba(0, 0, 0, 0);
+            border: 2px solid #cc0000;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+          }
+          .btn-logout:hover {
+            background: #cc0000;
+            transform: scale(1.05);
           }
           .btn-primary {
-            background:rgb(0, 170, 255);
+            background:rgb(0, 0, 0);
             border: none;
           }
           .btn-warning {
             background: #ffcc00;
             border: none;
+          
           }
-          .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+          
+          .btn:hover{
+            background:rgb(47, 73, 221)
           }
 
           /* Sidebar Toggle Button */
@@ -273,18 +281,44 @@ function TeacherConsultations() {
             radius:50%;
           }
 
-          .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
+          /* Dashboard Cards */
+          .dashboard-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             color: white;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 15px;
           }
-          .logout-container {
-            margin-top: auto;
+
+          .dashboard-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ccc;
+          }
+
+          .dashboard-card .count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00aaff;
+            margin-top: 10px;
+          }
+
+
+          /* Responsive Design */
+          @media (max-width: 768px) {
+            .sidebar {
+              width: 100%;
+          @media (max-width: 576px) {
+            .row {
+              flex-direction: column;
+              align-items: center;
+            }
+            .col-md-4 {
+              width: 80%;
+              margin-bottom: 15px;
+            }
           }
         `}
       </style>

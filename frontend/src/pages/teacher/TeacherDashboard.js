@@ -34,7 +34,6 @@ function TeacherDashboard() {
         <div className="sidebar-header">
           <br></br>
           <br></br>
-          <h3 className="text-light">Teacher Panel</h3>
         </div>
         <button className="btn btn-light-blue w-100" onClick={() => navigate("/teacher-consultations")}>
           View Consultations
@@ -42,8 +41,10 @@ function TeacherDashboard() {
         <button className="btn btn-light-blue w-100 mt-2" onClick={() => navigate("/teacher-profile")}>
           My Profile
         </button>
+        
+        {/* Logout Button (Moved to Bottom) */}
         <div className="logout-container">
-          <button className="btn btn-danger w-100" onClick={handleLogout}>
+          <button className="btn btn-logout" onClick={handleLogout}>
             Logout
           </button>
         </div>
@@ -54,7 +55,7 @@ function TeacherDashboard() {
         <h2 className="text-center text-primary">Welcome, Teacher!</h2>
         <p className="text-center text-secondary">Manage consultations, student requests, and your profile.</p>
 
-        {/* 🔹 Teacher Statistics Section */}
+        {/* Teacher Statistics Section */}
         <div className="row mt-4">
           <div className="col-md-4">
             <div className="dashboard-card">
@@ -77,7 +78,7 @@ function TeacherDashboard() {
         </div>
       </div>
 
-      {/* 🔹 Updated Styles */}
+      {/* Updated Styles */}
       <style>
         {`
           /* General Styling */
@@ -93,6 +94,7 @@ function TeacherDashboard() {
             color: white;
             overflow-x: hidden;
           }
+
           .dashboard-container {
             display: flex;
             flex-direction: column;
@@ -108,11 +110,15 @@ function TeacherDashboard() {
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: #121212;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             padding: 20px;
-            transition: left 0.3s ease-in-out;
+            transition: left 0.3s ease;
             z-index: 1000;
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes logout button to bottom */
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
           .sidebar.open {
             left: 0;
@@ -129,40 +135,33 @@ function TeacherDashboard() {
             z-index: 999;
             display: none;
           }
-          .dashboard-card{
-          
-          }
           .sidebar-overlay.show {
             display: block;
           }
 
           /* Sidebar Buttons */
           .btn {
-            transition: all 0.3s ease-in-out;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: bold;
+            background: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 10px;
             margin-bottom: 10px;
+            border-radius: 8px;
             font-size: 16px;
-          }
-          .btn-primary {
-            background:rgb(0, 170, 255);
-            border: none;
-          }
-          .btn-warning {
-            background: #ffcc00;
-            border: none;
+            transition: background 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
           }
           .btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+            background:rgb(17, 144, 248);
+            color: white;
+            transform: scale(1.05);
           }
 
           /* Sidebar Toggle Button */
           .menu-btn {
             position: fixed;
             top: 10px;
-            left:2px;
+            left: 10px;
             background: transparent;
             color: white;
             border: none;
@@ -176,10 +175,30 @@ function TeacherDashboard() {
           .menu-btn:hover {
             background: rgba(0, 0, 0, 0.1);
             transform: scale(1.1);
-            radius:50%;
           }
 
-          /* 🔹 Dashboard Cards */
+          /* Logout Button */
+          .logout-container {
+            margin-top: auto; /* Pushes to bottom */
+            padding-bottom: 10px;
+          }
+          .btn-logout {
+            background:rgba(0, 0, 0, 0);
+            border: 2px solid #cc0000;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+          }
+          .btn-logout:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+          }
+
+          /* Dashboard Cards */
           .dashboard-card {
             background: #1e1e1e;
             padding: 20px;
@@ -189,15 +208,13 @@ function TeacherDashboard() {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             color: white;
           }
-          .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
-          }
+
           .dashboard-card h4 {
             font-size: 18px;
             font-weight: 600;
             color: #ccc;
           }
+
           .dashboard-card .count {
             font-size: 24px;
             font-weight: bold;
@@ -209,6 +226,8 @@ function TeacherDashboard() {
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
+            }
+          }
           @media (max-width: 576px) {
             .row {
               flex-direction: column;
@@ -219,7 +238,6 @@ function TeacherDashboard() {
               margin-bottom: 15px;
             }
           }
-          
         `}
       </style>
     </div>

@@ -33,6 +33,7 @@ function RequestTeacherConsultation() {
       alert("Error creating consultation. Try again!");
     }
   };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -40,71 +41,76 @@ function RequestTeacherConsultation() {
   const closeSidebar = () => {
     setIsSidebarOpen(false);
   };
+
   const handleLogout = () => {
-    logout(); // ✅ Clears user state
-    navigate("/login"); // ✅ Redirect to login page
+    logout();
+    navigate("/login");
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center text-primary">Request a Teacher Consultation</h2>
-      <button className="menu-btn" onClick={toggleSidebar}>
-        ☰ 
+    <div className="main-container">
+      {/* Sidebar Toggle Button */}
+      <button className={`menu-btn ${isSidebarOpen ? "shift-right" : ""}`} onClick={toggleSidebar}>
+        ☰
       </button>
 
-      {/* Sidebar Overlay (Closes sidebar when clicked) */}
+      {/* Sidebar Overlay */}
       <div className={`sidebar-overlay ${isSidebarOpen ? "show" : ""}`} onClick={closeSidebar}></div>
 
       {/* Sidebar Navigation */}
       <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-        <h4 className="text-center text-light mt-3">Menu</h4>
-        <button className="btn btn-primary w-100 mb-2" onClick={() => navigate("/request-consultation")}>
-          Request Consultation
+        <h4 className="sidebar-title">Student Menu</h4>
+        <button className="sidebar-btn" onClick={() => navigate("/request-consultation")}>
+          📝 Request Consultation
         </button>
-        <button className="btn btn-primary w-100" onClick={() => navigate("/student-consultations")}>
-          View My Consultations
+        <button className="sidebar-btn" onClick={() => navigate("/student-consultations")}>
+          📑 View My Consultations
         </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/request-teacher-consultation")}>
-          Request Teacher Consultation
+        <button className="sidebar-btn" onClick={() => navigate("/request-teacher-consultation")}>
+          👨‍🏫 Request Teacher Consultation
         </button>
-        <button className="btn btn-primary w-100 mt-2" onClick={() => navigate("/student-dashboard")}>
-          Back to Dashboard
+        <button className="sidebar-btn" onClick={() => navigate("/student-dashboard")}>
+          🏠 Back to Dashboard
         </button>
-        <div className="logout-container">
-          <button className="btn btn-danger w-100" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-      </div>      
-      <div className="card p-4 shadow-lg">
-        <div className="mb-3">
-          <label className="form-label"><strong>Topic</strong></label>
-          <input
-            className="form-control"
-            placeholder="Enter topic"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label"><strong>Description</strong></label>
-          <textarea
-            className="form-control"
-            placeholder="Enter description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="4"
-          ></textarea>
-        </div>
-
-        <button className="btn btn-success w-100" onClick={handleCreate}>
-          Submit Request
+        <button className="sidebar-btn logout-btn" onClick={handleLogout}>
+          🚪 Logout
         </button>
       </div>
+
+      {/* Main Content */}
+      <div className="content-container">
+        <h2 className="welcome-title">Request a Teacher Consultation</h2>
+        <div className="form-card">
+          <div className="form-group">
+            <label className="form-label"><strong>Topic</strong></label>
+            <input
+              className="form-input"
+              placeholder="Enter topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label"><strong>Description</strong></label>
+            <textarea
+              className="form-input"
+              placeholder="Enter description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows="4"
+            ></textarea>
+          </div>
+
+          <button className="submit-btn" onClick={handleCreate}>
+            Submit Request
+          </button>
+        </div>
+      </div>
+
+      {/* Styles */}
       <style>
         {`
-          /* General Styling */
           * {
             box-sizing: border-box;
             margin: 0;
@@ -113,42 +119,63 @@ function RequestTeacherConsultation() {
           }
 
           body {
-            background: #0d1117;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)),
+              url('https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
+                no-repeat center center/cover;
+            background-attachment: fixed;
             color: white;
-            overflow-x: hidden;
           }
 
-          .dashboard-container {
+          .main-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
           }
 
+          .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+          }
 
-          /* Sidebar */
+          .menu-btn.shift-right {
+            left: 280px; /* Adjust based on sidebar width */
+          }
+
+          .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+          }
+
           .sidebar {
             position: fixed;
             top: 0;
             left: -260px;
             width: 260px;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
             padding: 20px;
             transition: left 0.3s ease;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
+            gap: 10px;
             box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
           }
+
           .sidebar.open {
             left: 0;
           }
 
-          /* Sidebar Overlay */
           .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -159,93 +186,137 @@ function RequestTeacherConsultation() {
             z-index: 999;
             display: none;
           }
+
           .sidebar-overlay.show {
             display: block;
           }
 
-          /* Sidebar Buttons */
-          .btn {
-            background: transparent;
-            border: 2px solid #007bff;
-            color: #007bff;
-            padding: 10px;
-            margin-bottom: 10px;
+          .sidebar-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+          }
+
+          .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px 15px;
             border-radius: 8px;
             font-size: 16px;
-            transition: background 0.3s ease, transform 0.3s ease;
+            text-align: left;
             cursor: pointer;
-          }
-          .btn-primary {
-            background:rgb(0, 0, 0);
-            border: none;
-          }
-          .btn-warning {
-            background: #ffcc00;
-            border: none;
-          }
-          .btn:hover {
-            background: #007bff;
-            color: white;
-            transform: scale(1.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
           }
 
-          /* Sidebar Toggle Button */
-          .menu-btn {
-            position: fixed;
-            top: 10px;
-            left:2px;
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            font-size: 22px;
-            cursor: pointer;
-            border-radius: 8px;
-            z-index: 1100;
-            transition: all 0.3s ease-in-out;
-          }
-          .menu-btn:hover {
-            background: rgba(0, 0, 0, 0.1);
-            transform: scale(1.1);
-            radius:50%;
+          .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
           }
 
-          /* Dashboard Cards */
-          .dashboard-card {
-            background: #1e1e1e;
+          .logout-btn {
+            margin-top: auto;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.5);
+          }
+
+          .logout-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+          }
+
+          .content-container {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: ${isSidebarOpen ? "260px" : "0"};
+            transition: margin-left 0.3s ease;
+          }
+
+          .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00aaff;
+          }
+
+          .form-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+          }
+
+          .form-group {
+            margin-bottom: 20px;
+          }
+
+          .form-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            display: block;
+          }
+
+          .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
             color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, background 0.3s ease;
           }
 
-          .dashboard-card h4 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ccc;
+          .form-input:focus {
+            border-color: #00aaff;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
           }
 
-          .dashboard-card .count {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00aaff;
-            margin-top: 10px;
+          .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #00aaff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
           }
 
-          /* Responsive Design */
+          .submit-btn:hover {
+            background: #0088cc;
+            transform: translateY(-2px);
+          }
+
           @media (max-width: 768px) {
             .sidebar {
               width: 100%;
-          @media (max-width: 576px) {
-            .row {
-              flex-direction: column;
-              align-items: center;
+              left: -100%;
             }
-            .col-md-4 {
-              width: 80%;
-              margin-bottom: 15px;
+
+            .sidebar.open {
+              left: 0;
+            }
+
+            .content-container {
+              margin-left: 0;
+            }
+
+            .menu-btn.shift-right {
+              left: calc(100% - 60px); /* Adjust for mobile */
             }
           }
         `}
