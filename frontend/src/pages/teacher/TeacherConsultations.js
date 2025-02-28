@@ -288,8 +288,8 @@ function TeacherConsultations() {
 
           .main-content {
             flex-grow: 1;
-            padding: 20px;
-            backdrop-filter: blur(15px);
+            padding: 60px;
+            backdrop-filter: blur 1px);
             margin-left: ${isSidebarOpen ? "260px" : "0"};
             transition: margin-left 0.3s ease;
           }
@@ -299,6 +299,7 @@ function TeacherConsultations() {
             font-weight: 600;
             text-align: center;
             margin-bottom: 10px;
+            color:white;
           }
 
           .welcome-subtitle {

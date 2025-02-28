@@ -25,6 +25,7 @@ function TeacherDashboard() {
 
   return (
     <div className="dashboard-container">
+
       <video autoPlay loop muted playsInline className="background-video">
         <source src="https://videos.pexels.com/video-files/4063585/4063585-hd_1920_1080_30fps.mp4" type="video/mp4" />
         Your browser does not support the video tag.
@@ -38,7 +39,7 @@ function TeacherDashboard() {
         <button className="sidebar-btn" onClick={() => navigate("/teacher-consultations")}>
           👨‍🏫 Consultations
         </button>
-        <button className="sidebar-btn" onClick={() => navigate("/student-dashboard")}>
+        <button className="sidebar-btn" onClick={() => navigate("/teacher-dashboard")}>
           🏠 Back to Dashboard
         </button>
         <button className="sidebar-btn logout-btn" onClick={handleLogout}>
@@ -168,14 +169,14 @@ function TeacherDashboard() {
           }
 
           .sidebar-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
             border: none;
             color: white;
             padding: 12px 15px;
             border-radius: 8px;
             font-size: 16px;
             text-align: left;
-            cursor: pointer;
+            cursor: pointer;  
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -183,7 +184,7 @@ function TeacherDashboard() {
           }
 
           .sidebar-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(34, 34, 34, 0.33);
             transform: translateX(5px);
           }
 
